@@ -4,6 +4,7 @@ var browserify = require('gulp-browserify');
 var watch = require("gulp-watch");
 var clean = require('gulp-clean');
 var concat = require("gulp-concat");
+var spawn = require('child_process').spawn;
 
 function build(files) {
 	gulp.src('./lib/IndexedDBStore.js')
@@ -14,6 +15,13 @@ function build(files) {
 
 gulp.task('default', ['build'], function(){
 
+});
+
+gulp.task('test', function () {
+	// Use browser based testing and not a headless WebKit
+	// proxy, since PhantomJS doesn't support IndexedDB as 
+	// of 1.9.x.
+    spawn("open", ["test/runner.html"]);
 });
 
 gulp.task('watch', function() {
