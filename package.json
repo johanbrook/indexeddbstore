@@ -4,5 +4,8 @@
   "license": "MIT",
   "dependencies": {
     "q" : "1.0.x"
+  },
+  "devDependencies" : {
+    "browserify" : "~3.0"
   }
 }
