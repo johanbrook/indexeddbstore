@@ -18,7 +18,13 @@ describe("IndexedDBStore", function() {
 
 	after(function() {
 		// Remove IndexedDB database
-		db._db.deleteDatabase("test")
+		var indexedDB = window.indexedDB ||
+					window.webkitIndexedDB ||
+					window.mozIndexedDB || 
+					window.OIndexedDB || 
+					window.msIndexedDB;
+
+		indexedDB.deleteDatabase("test")
 	})
 
 	// Helpers
