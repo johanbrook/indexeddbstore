@@ -11,7 +11,7 @@ describe("IndexedDBStore", function() {
 			dbName: "test"
 		})
 
-		db.clear()
+		return db.clear()
 	})
 
 	// After test suite
@@ -72,26 +72,18 @@ describe("IndexedDBStore", function() {
 	})
 
 	describe("#size()", function() {
-		it("should return the number of records in the store", function() {
-			return addRecord("Johan").then(function(record) {
+		it("should return zero when there are no records in store", function() {
+			return db.size().should.eventually.equal(0)
+		})
 
-				return db.size().then(function(size) {
-					size.should.equal(1)
-				})
-			})
+		it("should return the number of records in the store", function() {
+			return addRecord("Johan").then(db.size.bind(db)).should.eventually.equal(1)
 		})
 	})
 
 	describe("#clear()", function() {
 		it("should clear all rows", function() {
-			db.clear()
-			return db.all().then(function(records) {
-				records.length.should.equal(0)
-
-				db.size().then(function(size) {
-					size.should.equal(0)
-				})
-			})
+			return db.clear().then(db.size.bind(db)).should.eventually.equal(0)
 		})
 	})
 })
