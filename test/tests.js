@@ -21,6 +21,12 @@ describe("IndexedDBStore", function() {
 		db._db.deleteDatabase("test")
 	})
 
+	// Helpers
+	
+	function addRecord(record) {
+		return db.save(record)
+	}
+
 	it("should be available", function(){
 		db.should.not.be.undefined
 	})
@@ -37,7 +43,7 @@ describe("IndexedDBStore", function() {
 		})
 
 		it("should return one element when added", function() {
-			return db.save("Test").then(function() {
+			return addRecord("test").then(function() {
 				return db.all().then(function(records) {
 					records.length.should.equal(1)
 				})
@@ -47,7 +53,7 @@ describe("IndexedDBStore", function() {
 
 	describe("#save()", function() {
 		it("should save a record", function() {
-			return db.save("Test").then(function(record) {
+			return addRecord("Test").then(function(record) {
 				record.should.equal("Test")
 			})
 		})
@@ -55,11 +61,22 @@ describe("IndexedDBStore", function() {
 
 	describe("#get()", function() {
 		it("should retrieve a given record", function() {
-			return db.save("Test").then(function(record) {
+			return addRecord("Test").then(function(record) {
 				record.should.equal("Test")
 
 				return db.get("Test").then(function(test) {
 					test.should.equal(record).and.equal("Test")
+				})
+			})
+		})
+	})
+
+	describe("#size()", function() {
+		it("should return the number of records in the store", function() {
+			return addRecord("Johan").then(function(record) {
+
+				return db.size().then(function(size) {
+					size.should.equal(1)
 				})
 			})
 		})
@@ -70,6 +87,10 @@ describe("IndexedDBStore", function() {
 			db.clear()
 			return db.all().then(function(records) {
 				records.length.should.equal(0)
+
+				db.size().then(function(size) {
+					size.should.equal(0)
+				})
 			})
 		})
 	})
