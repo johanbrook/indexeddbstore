@@ -2,12 +2,23 @@ var should = chai.should()
 
 describe("IndexedDBStore", function() {
 
-	var db = new IndexedDBStore({
-		dbName: "test"
-	})
+	var db;
+
+	// Before each test
 
 	beforeEach(function() {
+		db = new IndexedDBStore({
+			dbName: "test"
+		})
+
 		db.clear()
+	})
+
+	// After test suite
+
+	after(function() {
+		// Remove IndexedDB database
+		db._db.deleteDatabase("test")
 	})
 
 	it("should be available", function(){
