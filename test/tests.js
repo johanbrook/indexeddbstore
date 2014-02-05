@@ -52,22 +52,21 @@ describe("IndexedDBStore", function() {
 	})
 
 	describe("#save()", function() {
-		it("should save a record", function() {
-			return addRecord("Test").then(function(record) {
-				record.should.equal("Test")
+		it("should save a record and return an id", function() {
+			return addRecord("Test")
+			.then(function(id) {
+				id.should.be.a("number")
 			})
 		})
 	})
 
 	describe("#get()", function() {
 		it("should retrieve a given record", function() {
-			return addRecord("Test").then(function(record) {
+			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
 				record.should.equal("Test")
-
-				return db.get("Test").then(function(test) {
-					test.should.equal(record).and.equal("Test")
-				})
 			})
+
+			
 		})
 	})
 
