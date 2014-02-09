@@ -66,7 +66,7 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#save()", function() {
+	describe("#create()", function() {
 		it("should save a record and return it", function() {
 			return db.create("Test").then(function(record) {
 				record.should.equal("Test")
