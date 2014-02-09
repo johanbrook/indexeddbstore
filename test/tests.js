@@ -2,6 +2,8 @@ var should = chai.should()
 
 describe("IndexedDBStore", function() {
 
+	this.timeout(4000);
+
 	var db;
 
 	// Before each test
@@ -67,6 +69,14 @@ describe("IndexedDBStore", function() {
 			return addRecord("Test")
 			.then(function(id) {
 				id.should.be.a("number")
+			})
+		})
+
+		it("should be able to save a Blob", function() {
+			var blob = new Blob(["Test"], {type: "text/plain"})
+			return db.create(blob).then(function(b) {
+				console.log(b)
+				true.should.equal(true)
 			})
 		})
 	})
