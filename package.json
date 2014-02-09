@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "license": "MIT",
   "main": "lib/IndexedDBStore",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/datx02/data-storage.git"
+  },
   "dependencies": {
     "q": "1.0.x"
   },
