@@ -41,6 +41,11 @@ describe("IndexedDBStore", function() {
 		db.name.should.equal("test")
 	})
 
+	it("should have a default database name", function() {
+		var db2 = new IndexedDBStore()
+		db2.name.should.equal("DEFAULT")
+	})
+
 	describe("#all()", function() {
 		it("should return no elements on default", function() {
 			return db.all().then(function(records) {
