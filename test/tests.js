@@ -66,6 +66,14 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
+	describe("#save()", function() {
+		it("should save a record and return it", function() {
+			return db.create("Test").then(function(record) {
+				record.should.equal("Test")
+			})
+		})
+	})
+
 	describe("#get()", function() {
 		it("should retrieve a given record", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
