@@ -66,6 +66,23 @@ describe("Utils", function() {
 				.should.eventually.equal("Test")
 		})
 	})
+
+	describe("#blobToJSON", function() {
+		it("should return a JSON representation of a given Blob", function() {
+			var blob = new Blob(["Test"]),
+				blob2 = new Blob(["Test"], {type: "text/plain"})
+			
+			return Q.all([
+				Utils.blobToJSON(blob).then(function(json) {
+					(json.data instanceof ArrayBuffer).should.be.true
+					json.type.should.equal('')
+				}),
+				Utils.blobToJSON(blob2).then(function(json) {
+					json.type.should.equal("text/plain")
+				})
+			])
+		})
+	})
 })
 
 
