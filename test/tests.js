@@ -119,6 +119,27 @@ describe("IndexedDBStore", function() {
 		return db.save(record)
 	}
 
+	function getLocalFile(filename) {
+		var xhr = new XMLHttpRequest(),
+			defer = Q.defer()
+
+		xhr.responseType = 'blob'
+
+		xhr.onreadystatechange = function(evt) {
+			if(evt.target.readyState === 4 && evt.target.status === 200) {
+				defer.resolve(xhr.response)
+			}
+		}
+		xhr.ontimeout = xhr.onerror = function(evt) {
+			defer.reject(evt)
+		}
+
+		xhr.open("GET", "/test/"+filename, true)
+		xhr.send()
+
+		return defer.promise
+	}
+
 	it("should be available", function(){
 		db.should.not.be.undefined
 	})
@@ -152,33 +173,47 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
-		it("should be able to save a Blob", function() {
+		it("should save a Blob", function() {
 			var blob = new Blob(["Test"], {type: "text/plain"})
 			return db.save(blob).should.eventually.be.a("Number")
-		})
-	})
-
-	describe("#create", function() {
-		it("should save a record and return it", function() {
-			return db.create("Test").then(function(record) {
-				(record instanceof ArrayBuffer).should.be.true
-				// "Test" has 4 bytes
-				record.byteLength.should.equal(4)
-				IndexedDBStore.Utils.arrayBufferToBinaryString(record)
-					.should.eventually.equal("Test")
-			})
 		})
 	})
 
 	describe("#get", function() {
 		it("should retrieve a given record", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
-				(record instanceof ArrayBuffer).should.be.true
 				// "Test" has 4 bytes
-				record.byteLength.should.equal(4)
-				IndexedDBStore.Utils.arrayBufferToBinaryString(record)
+				record.data.byteLength.should.equal(4)
+				IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
 					.should.eventually.equal("Test")
 			})
+		})
+	})
+
+	describe("#create", function() {
+		it("should create a record and return it", function() {
+			return db.create("Test").then(function(record) {
+				record.data.byteLength.should.equal(4)
+
+				return IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
+					.should.eventually.equal("Test")
+			})
+		})
+
+		it("should create a record from a given binary file", function() {
+			return Q.all([
+				getLocalFile("test-image.jpg")
+					.then(db.create.bind(db))
+					.then(function(record) {
+						return record.type.should.equal("image/jpeg")
+					})
+				,
+				getLocalFile("test-pdf.pdf")
+					.then(db.create.bind(db))
+					.then(function(record) {
+						return record.type.should.equal("application/pdf")
+					})
+			])
 		})
 	})
 
