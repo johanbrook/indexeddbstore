@@ -1,6 +1,74 @@
 var should = chai.should()
 
-describe("IndexedDBStore", function() {
+var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/
+
+describe("Utils", function() {
+	var Utils = IndexedDBStore.Utils
+
+	describe("#toObjectURL", function() {
+		it("should convert a Blob to an ObjectURL", function() {
+			var data = new Blob(["Test"]),
+				url = Utils.toObjectURL(data)
+
+			url.should.exist
+			url.should.be.a("String")
+			url.should.match(URL_REGEX)
+		})	
+
+		it("should convert arbitrary data to an ObjectURL", function() {
+			var data = "Test",
+				url = Utils.toObjectURL(data)
+
+			url.should.exist
+			url.should.be.a("String")
+			url.should.match(URL_REGEX)
+		})	
+	})
+
+	describe("#blobToArrayBuffer", function() {
+		it("should convert a Blob to an ArrayBuffer", function(){
+			var blob = new Blob(["Test"])
+			return Utils.blobToArrayBuffer(blob).then(function(buffer) {
+				(buffer instanceof ArrayBuffer).should.be.true
+				buffer.byteLength.should.equal(4)
+			})
+		})
+	})
+
+	describe("#arrayBufferToBlob", function() {
+		it("should convert an ArrayBuffer to Blob", function(done) {
+			var blob = new Blob(["Test"])
+			return Utils.blobToArrayBuffer(blob).then(function(buffer) {
+				var blob2 = Utils.arrayBufferToBlob(buffer)
+				blob2.size.should.equal(blob.size)
+				done()
+			})
+		})
+	})
+
+	describe("#arrayBufferToURL", function() {
+		it("should convert an ArrayBuffer to an ObjectURL", function() {
+			// First create a buffer from existing util function
+			return Utils.blobToArrayBuffer(new Blob(["Test"])).then(function(buffer) {
+				var url = Utils.arrayBufferToURL(buffer)
+				url.should.exist
+				url.should.be.a("String")
+				url.should.match(URL_REGEX)
+			})
+		})
+	})
+
+	describe("#arrayBufferToBinaryString", function() {
+		it("should convert an ArrayBuffer to a binary String", function() {
+			var blob = new Blob(["Test"])
+			return Utils.blobToArrayBuffer(blob)
+				.then(Utils.arrayBufferToBinaryString)
+				.should.eventually.equal("Test")
+		})
+	})
+})
+
+
 
 	this.timeout(4000);
 
