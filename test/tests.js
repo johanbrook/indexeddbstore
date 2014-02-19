@@ -70,7 +70,8 @@ describe("Utils", function() {
 
 
 
-	this.timeout(4000);
+
+describe("IndexedDBStore", function() {
 
 	var db;
 
@@ -116,58 +117,68 @@ describe("Utils", function() {
 		db2.name.should.equal("DEFAULT")
 	})
 
-	describe("#all()", function() {
+	describe("#all", function() {
 		it("should return no elements on default", function() {
 			return db.all().then(function(records) {
 				records.length.should.equal(0)
 			})
 		})
-
-		it("should return one element when added", function() {
-			return addRecord("test").then(function() {
-				return db.all().then(function(records) {
-					records.length.should.equal(1)
-				})
-			})
-		})
 	})
 
-	describe("#save()", function() {
+	describe("#save", function() {
 		it("should save a record and return an id", function() {
 			return addRecord("Test")
 			.then(function(id) {
-				id.should.be.a("number")
+				id.should.be.a("Number")
+
+				db.all().then(function(records) {
+					records.length.should.equal(1)
+				})
 			})
 		})
 
 		it("should be able to save a Blob", function() {
 			var blob = new Blob(["Test"], {type: "text/plain"})
-			return db.create(blob).then(function(b) {
-				console.log(b)
-				true.should.equal(true)
-			})
+			return db.save(blob).should.eventually.be.a("Number")
 		})
 	})
 
-	describe("#create()", function() {
+	describe("#create", function() {
 		it("should save a record and return it", function() {
 			return db.create("Test").then(function(record) {
-				record.should.equal("Test")
+				(record instanceof ArrayBuffer).should.be.true
+				// "Test" has 4 bytes
+				record.byteLength.should.equal(4)
+				IndexedDBStore.Utils.arrayBufferToBinaryString(record)
+					.should.eventually.equal("Test")
 			})
 		})
 	})
 
-	describe("#get()", function() {
+	describe("#get", function() {
 		it("should retrieve a given record", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
-				record.should.equal("Test")
+				(record instanceof ArrayBuffer).should.be.true
+				// "Test" has 4 bytes
+				record.byteLength.should.equal(4)
+				IndexedDBStore.Utils.arrayBufferToBinaryString(record)
+					.should.eventually.equal("Test")
 			})
-
-			
 		})
 	})
 
-	describe("#size()", function() {
+	describe("#getAsString", function() {
+		it("should retrieve a given record as a binary string", function() {
+			return addRecord("Test")
+				.then(db.getAsString.bind(db))
+				.then(function(str) {
+					str.should.be.a("String")
+					str.should.equal("Test")
+				})
+		})
+	})
+
+	describe("#size", function() {
 		it("should return zero when there are no records in store", function() {
 			return db.size().should.eventually.equal(0)
 		})
@@ -177,7 +188,7 @@ describe("Utils", function() {
 		})
 	})
 
-	describe("#clear()", function() {
+	describe("#clear", function() {
 		it("should clear all rows", function() {
 			return db.clear().then(db.size.bind(db)).should.eventually.equal(0)
 		})
