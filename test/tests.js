@@ -23,6 +23,16 @@ describe("Utils", function() {
 			url.should.be.a("String")
 			url.should.match(URL_REGEX)
 		})	
+
+		it("should convert an ArrayBuffer to an ObjectURL", function() {
+			// First create a buffer from existing util function
+			return Utils.blobToArrayBuffer(new Blob(["Test"])).then(function(buffer) {
+				var url = Utils.toObjectURL(buffer)
+				url.should.exist
+				url.should.be.a("String")
+				url.should.match(URL_REGEX)
+			})
+		})
 	})
 
 	describe("#blobToArrayBuffer", function() {
@@ -42,18 +52,6 @@ describe("Utils", function() {
 				var blob2 = Utils.arrayBufferToBlob(buffer)
 				blob2.size.should.equal(blob.size)
 				done()
-			})
-		})
-	})
-
-	describe("#arrayBufferToURL", function() {
-		it("should convert an ArrayBuffer to an ObjectURL", function() {
-			// First create a buffer from existing util function
-			return Utils.blobToArrayBuffer(new Blob(["Test"])).then(function(buffer) {
-				var url = Utils.arrayBufferToURL(buffer)
-				url.should.exist
-				url.should.be.a("String")
-				url.should.match(URL_REGEX)
 			})
 		})
 	})
