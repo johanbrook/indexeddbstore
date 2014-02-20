@@ -159,6 +159,27 @@ describe("IndexedDBStore", function() {
 				records.length.should.equal(0)
 			})
 		})
+
+		it("should retrieve all records in store", function() {
+			return Q.all([
+				db.create("Test 1"),
+				db.create("Test 2")
+			])
+			.then(function(records) {
+				// Check length
+				records.length.should.equal(2)
+
+				// Check individual records
+				return Q.all([
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data),
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
+				])
+				.then(function(results) {
+					results[0].should.equal("Test 1")
+					results[1].should.equal("Test 2")
+				})
+			})
+		})
 	})
 
 	describe("#save", function() {
