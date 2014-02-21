@@ -1,6 +1,7 @@
 var should = chai.should()
 
-var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/
+var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
+	GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
 describe("Utils", function() {
 	var Utils = IndexedDBStore.Utils
@@ -96,7 +97,7 @@ describe("Utils", function() {
 		})
 
 		it("should be on the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", function() {
-			guid.should.match(/[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/)
+			guid.should.match(GUID_REGEX)
 		})
 
 		it("should be pseudo-unique", function() {
@@ -213,7 +214,8 @@ describe("IndexedDBStore", function() {
 		it("should save a record and return an id", function() {
 			return addRecord("Test")
 			.then(function(id) {
-				id.should.be.a("Number")
+				id.should.be.a("String")
+				id.should.match(GUID_REGEX)
 
 				return Q.all([
 					db.all().then(function(records) {
@@ -227,7 +229,10 @@ describe("IndexedDBStore", function() {
 
 		it("should save a Blob", function() {
 			var blob = new Blob(["Test"], {type: "text/plain"})
-			return db.save(blob).should.eventually.be.a("Number")
+			return db.save(blob).then(function(id) {
+				id.should.be.a("String")
+				id.should.match(GUID_REGEX)
+			})
 		})
 	})
 
