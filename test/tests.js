@@ -189,9 +189,13 @@ describe("IndexedDBStore", function() {
 			.then(function(id) {
 				id.should.be.a("Number")
 
-				db.all().then(function(records) {
-					records.length.should.equal(1)
-				})
+				return Q.all([
+					db.all().then(function(records) {
+						records.length.should.equal(1)
+					})
+				,	
+					db.getAsString(id).should.eventually.equal("Test")
+				])
 			})
 		})
 
@@ -243,10 +247,7 @@ describe("IndexedDBStore", function() {
 		it("should retrieve a given record as a binary string", function() {
 			return addRecord("Test")
 				.then(db.getAsString.bind(db))
-				.then(function(str) {
-					str.should.be.a("String")
-					str.should.equal("Test")
-				})
+				.should.eventually.equal("Test")
 		})
 	})
 
@@ -256,13 +257,17 @@ describe("IndexedDBStore", function() {
 		})
 
 		it("should return the number of records in the store", function() {
-			return addRecord("Johan").then(db.size.bind(db)).should.eventually.equal(1)
+			return addRecord("Johan")
+				.then(db.size.bind(db))
+				.should.eventually.equal(1)
 		})
 	})
 
 	describe("#clear", function() {
 		it("should clear all rows", function() {
-			return db.clear().then(db.size.bind(db)).should.eventually.equal(0)
+			return db.clear()
+				.then(db.size.bind(db))
+				.should.eventually.equal(0)
 		})
 	})
 })
