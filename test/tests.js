@@ -106,6 +106,17 @@ describe("Utils", function() {
 			guid.should.not.equal(guid2)
 		})
 	})
+
+	describe("#extend", function() {
+		it("should extend a given object", function() {
+			var obj = {test: "Test", name: "Johan"}
+			var extended = Utils.extend(obj, {test: "Test", name: "John"}, {foo: "bar"})
+
+			extended.test.should.equal("Test")
+			extended.name.should.equal("John")
+			extended.foo.should.equal("bar")
+		})
+	})
 })
 
 
