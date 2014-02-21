@@ -20,6 +20,7 @@
     "gulp-browserify": "~0.4.2",
     "gulp-watch": "~0.5.0",
     "gulp-clean": "~0.2.4",
-    "gulp-concat": "~2.1.7"
+    "gulp-concat": "~2.1.7",
+    "connect": "~2.13.0"
   }
 }
