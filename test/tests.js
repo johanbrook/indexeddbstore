@@ -256,6 +256,13 @@ describe("IndexedDBStore", function() {
 					.should.eventually.equal("Test")
 			})
 		})
+
+		it("should return a record with a GUID", function() {
+			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
+				record.guid.should.exist
+				record.guid.should.match(GUID_REGEX)		
+			})
+		})
 	})
 
 	describe("#create", function() {
