@@ -112,7 +112,10 @@ describe("Utils", function() {
 
 describe("IndexedDBStore", function() {
 
-	var db;
+	var db,
+		// Do db clean-up after each test and delete database
+		// after test suite.
+		clean = true
 
 	// Before each test
 
@@ -121,7 +124,7 @@ describe("IndexedDBStore", function() {
 			dbName: "test"
 		})
 
-		return db.clear()
+		if(clean) return db.clear()
 	})
 
 	// After test suite
@@ -134,7 +137,7 @@ describe("IndexedDBStore", function() {
 					window.OIndexedDB || 
 					window.msIndexedDB;
 
-		indexedDB.deleteDatabase("test")
+		if(clean) indexedDB.deleteDatabase("test")
 	})
 
 	// Helpers
