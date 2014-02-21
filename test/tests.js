@@ -46,12 +46,11 @@ describe("Utils", function() {
 	})
 
 	describe("#arrayBufferToBlob", function() {
-		it("should convert an ArrayBuffer to Blob", function(done) {
+		it("should convert an ArrayBuffer to Blob", function() {
 			var blob = new Blob(["Test"])
 			return Utils.blobToArrayBuffer(blob).then(function(buffer) {
 				var blob2 = Utils.arrayBufferToBlob(buffer)
 				blob2.size.should.equal(blob.size)
-				done()
 			})
 		})
 	})
@@ -72,10 +71,12 @@ describe("Utils", function() {
 			
 			return Q.all([
 				Utils.blobToJSON(blob).then(function(json) {
+					json.should.be.an("Object");
 					(json.data instanceof ArrayBuffer).should.be.true
 					json.type.should.equal('')
 				}),
 				Utils.blobToJSON(blob2).then(function(json) {
+					json.should.be.an("Object")
 					json.type.should.equal("text/plain")
 				})
 			])
