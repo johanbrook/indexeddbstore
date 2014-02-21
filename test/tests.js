@@ -245,6 +245,17 @@ describe("IndexedDBStore", function() {
 				id.should.match(GUID_REGEX)
 			})
 		})
+
+		describe("#save (with given GUID)", function() {
+			it("should save a record with a given GUID", function() {
+				var guid = IndexedDBStore.Utils.guid()
+				return db.save(guid, "Test").then(function(id) {
+					id.should.be.a("String")
+					id.should.match(GUID_REGEX)
+					id.should.equal(guid)
+				})
+			})
+		})
 	})
 
 	describe("#get", function() {
@@ -289,6 +300,17 @@ describe("IndexedDBStore", function() {
 						return record.type.should.equal("application/pdf")
 					})
 			])
+		})
+
+		describe("#guid (with given GUID)", function() {
+			it("should create a record with a given GUID", function() {
+				var guid = IndexedDBStore.Utils.guid()
+
+				return db.create(guid, "Test").then(function(record) {
+					record.data.byteLength.should.equal(4)
+					record.guid.should.equal(guid)
+				})
+			})
 		})
 	})
 
