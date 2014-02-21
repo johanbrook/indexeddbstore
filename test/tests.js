@@ -82,6 +82,29 @@ describe("Utils", function() {
 			])
 		})
 	})
+
+	describe("#guid", function() {
+		var guid
+
+		beforeEach(function() {
+			guid = Utils.guid()
+		})
+
+		it("should generate a GUID", function() {
+			guid.should.exist
+			guid.should.be.a("String")
+		})
+
+		it("should be on the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", function() {
+			guid.should.match(/[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/)
+		})
+
+		it("should be pseudo-unique", function() {
+			var guid2 = Utils.guid()
+
+			guid.should.not.equal(guid2)
+		})
+	})
 })
 
 
