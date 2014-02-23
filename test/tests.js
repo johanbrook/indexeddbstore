@@ -1,6 +1,7 @@
 var should = chai.should()
 
-var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/
+var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
+	GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
 describe("Utils", function() {
 	var Utils = IndexedDBStore.Utils
@@ -82,6 +83,40 @@ describe("Utils", function() {
 			])
 		})
 	})
+
+	describe("#guid", function() {
+		var guid
+
+		beforeEach(function() {
+			guid = Utils.guid()
+		})
+
+		it("should generate a GUID", function() {
+			guid.should.exist
+			guid.should.be.a("String")
+		})
+
+		it("should be on the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", function() {
+			guid.should.match(GUID_REGEX)
+		})
+
+		it("should be pseudo-unique", function() {
+			var guid2 = Utils.guid()
+
+			guid.should.not.equal(guid2)
+		})
+	})
+
+	describe("#extend", function() {
+		it("should extend a given object", function() {
+			var obj = {test: "Test", name: "Johan"}
+			var extended = Utils.extend(obj, {test: "Test", name: "John"}, {foo: "bar"})
+
+			extended.test.should.equal("Test")
+			extended.name.should.equal("John")
+			extended.foo.should.equal("bar")
+		})
+	})
 })
 
 
@@ -89,7 +124,10 @@ describe("Utils", function() {
 
 describe("IndexedDBStore", function() {
 
-	var db;
+	var db,
+		// Do db clean-up after each test and delete database
+		// after test suite.
+		clean = true
 
 	// Before each test
 
@@ -98,7 +136,7 @@ describe("IndexedDBStore", function() {
 			dbName: "test"
 		})
 
-		return db.clear()
+		if(clean) return db.clear()
 	})
 
 	// After test suite
@@ -111,7 +149,7 @@ describe("IndexedDBStore", function() {
 					window.OIndexedDB || 
 					window.msIndexedDB;
 
-		indexedDB.deleteDatabase("test")
+		if(clean) indexedDB.deleteDatabase("test")
 	})
 
 	// Helpers
@@ -187,7 +225,8 @@ describe("IndexedDBStore", function() {
 		it("should save a record and return an id", function() {
 			return addRecord("Test")
 			.then(function(id) {
-				id.should.be.a("Number")
+				id.should.be.a("String")
+				id.should.match(GUID_REGEX)
 
 				return Q.all([
 					db.all().then(function(records) {
@@ -201,7 +240,21 @@ describe("IndexedDBStore", function() {
 
 		it("should save a Blob", function() {
 			var blob = new Blob(["Test"], {type: "text/plain"})
-			return db.save(blob).should.eventually.be.a("Number")
+			return db.save(blob).then(function(id) {
+				id.should.be.a("String")
+				id.should.match(GUID_REGEX)
+			})
+		})
+
+		describe("#save (with given GUID)", function() {
+			it("should save a record with a given GUID", function() {
+				var guid = IndexedDBStore.Utils.guid()
+				return db.save(guid, "Test").then(function(id) {
+					id.should.be.a("String")
+					id.should.match(GUID_REGEX)
+					id.should.equal(guid)
+				})
+			})
 		})
 	})
 
@@ -212,6 +265,13 @@ describe("IndexedDBStore", function() {
 				record.data.byteLength.should.equal(4)
 				IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
 					.should.eventually.equal("Test")
+			})
+		})
+
+		it("should return a record with a GUID", function() {
+			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
+				record.guid.should.exist
+				record.guid.should.match(GUID_REGEX)		
 			})
 		})
 	})
@@ -240,6 +300,17 @@ describe("IndexedDBStore", function() {
 						return record.type.should.equal("application/pdf")
 					})
 			])
+		})
+
+		describe("#guid (with given GUID)", function() {
+			it("should create a record with a given GUID", function() {
+				var guid = IndexedDBStore.Utils.guid()
+
+				return db.create(guid, "Test").then(function(record) {
+					record.data.byteLength.should.equal(4)
+					record.guid.should.equal(guid)
+				})
+			})
 		})
 	})
 
