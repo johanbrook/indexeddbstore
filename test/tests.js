@@ -201,8 +201,8 @@ describe("IndexedDBStore", function() {
 
 		it("should retrieve all records in store", function() {
 			return Q.all([
-				db.create("Test 1"),
-				db.create("Test 2")
+				db.create(new Blob(["Test 1"], { type: "text/plain" })),
+				db.create(new Blob(["Test 2"], { type: "text/plain" }))
 			])
 			.then(function(records) {
 				// Check length
@@ -256,6 +256,18 @@ describe("IndexedDBStore", function() {
 				})
 			})
 		})
+
+		it("should save several Blobs from an array", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.save(blobs).then(function(ids) {
+				ids.should.be.an("Array")
+				ids.length.should.equal(2)
+			})
+		})
 	})
 
 	describe("#get", function() {
@@ -272,6 +284,30 @@ describe("IndexedDBStore", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
 				record.guid.should.exist
 				record.guid.should.match(GUID_REGEX)		
+			})
+		})
+
+		it("should retrieve given records from an array of ids", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.save(blobs).then(db.get.bind(db)).then(function(records) {
+				records.length.should.equal(2)
+
+				console.log(records)
+
+				return Q.all([
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data)
+					.should.eventually.equal("Test")
+					
+					,
+
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
+						.should.eventually.equal("Test 2")
+					]
+				)
 			})
 		})
 	})
@@ -310,6 +346,18 @@ describe("IndexedDBStore", function() {
 					record.data.byteLength.should.equal(4)
 					record.guid.should.equal(guid)
 				})
+			})
+		})
+
+		it("should create several Blobs from an array", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.create(blobs).then(function(ids) {
+				ids.should.be.an("Array")
+				ids.length.should.equal(2)
 			})
 		})
 	})
