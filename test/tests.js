@@ -3,6 +3,29 @@ var should = chai.should()
 var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
 	GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
+// Helpers 
+
+function getLocalFile(filename) {
+	var xhr = new XMLHttpRequest(),
+		defer = Q.defer()
+
+	xhr.responseType = 'blob'
+
+	xhr.onreadystatechange = function(evt) {
+		if(evt.target.readyState === 4 && evt.target.status === 200) {
+			defer.resolve(xhr.response)
+		}
+	}
+	xhr.ontimeout = xhr.onerror = function(evt) {
+		defer.reject(evt)
+	}
+
+	xhr.open("GET", "/test/"+filename, true)
+	xhr.send()
+
+	return defer.promise
+}
+
 describe("Utils", function() {
 	var Utils = IndexedDBStore.Utils
 
@@ -67,20 +90,38 @@ describe("Utils", function() {
 
 	describe("#blobToJSON", function() {
 		it("should return a JSON representation of a given Blob", function() {
-			var blob = new Blob(["Test"]),
-				blob2 = new Blob(["Test"], {type: "text/plain"})
+			var blob = new Blob(["Test"])
 			
-			return Q.all([
-				Utils.blobToJSON(blob).then(function(json) {
-					json.should.be.an("Object");
-					(json.data instanceof ArrayBuffer).should.be.true
-					json.type.should.equal('')
-				}),
-				Utils.blobToJSON(blob2).then(function(json) {
-					json.should.be.an("Object")
-					json.type.should.equal("text/plain")
+			return Utils.blobToJSON(blob).then(function(json) {
+				json.should.be.an("Object");
+				(json.data instanceof ArrayBuffer).should.be.true
+			})
+		})
+
+		it("should return a type key for a given Blob", function() {
+			var blob = new Blob(["Test"], { type: "text/plain" })
+			
+			return Utils.blobToJSON(blob).then(function(json) {
+				json.type.should.equal('text/plain')
+			})
+		})
+
+		it("should return a name key for a given Blob", function() {
+			var blob = new Blob(["Test"], { type: "text/plain" })
+			
+			return Utils.blobToJSON(blob).then(function(json) {
+				json.name.should.equal('')
+			})
+		})
+
+		it("should return a date key for a given Blob", function() {
+			return getLocalFile("test-image.jpg")
+				.then(Utils.blobToJSON.bind(Utils))
+				.then(function(json) {
+					json.date.should.not.be.undefined
+					var parsedDate = new Date(json.date)
+					parsedDate.toString().should.not.equal("Invalid Date")
 				})
-			])
 		})
 	})
 
@@ -156,27 +197,6 @@ describe("IndexedDBStore", function() {
 	
 	function addRecord(record) {
 		return db.save(record)
-	}
-
-	function getLocalFile(filename) {
-		var xhr = new XMLHttpRequest(),
-			defer = Q.defer()
-
-		xhr.responseType = 'blob'
-
-		xhr.onreadystatechange = function(evt) {
-			if(evt.target.readyState === 4 && evt.target.status === 200) {
-				defer.resolve(xhr.response)
-			}
-		}
-		xhr.ontimeout = xhr.onerror = function(evt) {
-			defer.reject(evt)
-		}
-
-		xhr.open("GET", "/test/"+filename, true)
-		xhr.send()
-
-		return defer.promise
 	}
 
 	it("should be available", function(){
@@ -273,6 +293,7 @@ describe("IndexedDBStore", function() {
 	describe("#get", function() {
 		it("should retrieve a given record", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
+				record.should.be.an("Object")
 				// "Test" has 4 bytes
 				record.data.byteLength.should.equal(4)
 				IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
@@ -287,6 +308,15 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
+		it("should return a record with type, name and date keys", function() {
+			return db.save(new Blob(['Test', { type: "text/plain" }]))
+				.then(db.get.bind(db)).then(function(record) {
+					record.date.should.not.be.undefined
+					record.type.should.not.be.undefined
+					record.name.should.not.be.undefined
+				})
+		})
+
 		it("should retrieve given records from an array of ids", function() {
 			var blobs = [
 				new Blob(["Test"], {type: "text/plain"}),
@@ -295,8 +325,6 @@ describe("IndexedDBStore", function() {
 
 			return db.save(blobs).then(db.get.bind(db)).then(function(records) {
 				records.length.should.equal(2)
-
-				console.log(records)
 
 				return Q.all([
 					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data)
