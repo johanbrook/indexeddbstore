@@ -203,6 +203,18 @@ describe("IndexedDBStore", function() {
 			var blob = new Blob(["Test"], {type: "text/plain"})
 			return db.save(blob).should.eventually.be.a("Number")
 		})
+
+		it("should save several Blobs from an array", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.save(blobs).then(function(ids) {
+				ids.should.be.an("Array")
+				ids.length.should.equal(2)
+			})
+		})
 	})
 
 	describe("#get", function() {
@@ -212,6 +224,28 @@ describe("IndexedDBStore", function() {
 				record.data.byteLength.should.equal(4)
 				IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
 					.should.eventually.equal("Test")
+			})
+		})
+
+		it("should retrieve given records from an array of ids", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.save(blobs).then(db.get.bind(db)).then(function(records) {
+				records.length.should.equal(2)
+
+				return Q.all([
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data)
+					.should.eventually.equal("Test")
+					
+					,
+
+					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
+						.should.eventually.equal("Test 2")
+					]
+				)
 			})
 		})
 	})
@@ -240,6 +274,18 @@ describe("IndexedDBStore", function() {
 						return record.type.should.equal("application/pdf")
 					})
 			])
+		})
+
+		it("should create several Blobs from an array", function() {
+			var blobs = [
+				new Blob(["Test"], {type: "text/plain"}),
+				new Blob(["Test 2"], {type: "text/plain"})
+			]
+
+			return db.create(blobs).then(function(ids) {
+				ids.should.be.an("Array")
+				ids.length.should.equal(2)
+			})
 		})
 	})
 
