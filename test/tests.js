@@ -3,7 +3,7 @@ var should = chai.should()
 var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
 	GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
-// Helpers 
+// Helpers
 
 function getLocalFile(filename) {
 	var xhr = new XMLHttpRequest(),
@@ -37,7 +37,7 @@ describe("Utils", function() {
 			url.should.exist
 			url.should.be.a("String")
 			url.should.match(URL_REGEX)
-		})	
+		})
 
 		it("should convert arbitrary data to an ObjectURL", function() {
 			var data = "Test",
@@ -46,7 +46,7 @@ describe("Utils", function() {
 			url.should.exist
 			url.should.be.a("String")
 			url.should.match(URL_REGEX)
-		})	
+		})
 
 		it("should convert an ArrayBuffer to an ObjectURL", function() {
 			// First create a buffer from existing util function
@@ -91,7 +91,7 @@ describe("Utils", function() {
 	describe("#blobToJSON", function() {
 		it("should return a JSON representation of a given Blob", function() {
 			var blob = new Blob(["Test"])
-			
+
 			return Utils.blobToJSON(blob).then(function(json) {
 				json.should.be.an("Object");
 				(json.data instanceof ArrayBuffer).should.be.true
@@ -100,7 +100,7 @@ describe("Utils", function() {
 
 		it("should return a type key for a given Blob", function() {
 			var blob = new Blob(["Test"], { type: "text/plain" })
-			
+
 			return Utils.blobToJSON(blob).then(function(json) {
 				json.type.should.equal('text/plain')
 			})
@@ -108,7 +108,7 @@ describe("Utils", function() {
 
 		it("should return a name key for a given Blob", function() {
 			var blob = new Blob(["Test"], { type: "text/plain" })
-			
+
 			return Utils.blobToJSON(blob).then(function(json) {
 				json.name.should.equal('')
 			})
@@ -186,15 +186,15 @@ describe("IndexedDBStore", function() {
 		// Remove IndexedDB database
 		var indexedDB = window.indexedDB ||
 					window.webkitIndexedDB ||
-					window.mozIndexedDB || 
-					window.OIndexedDB || 
+					window.mozIndexedDB ||
+					window.OIndexedDB ||
 					window.msIndexedDB;
 
 		if(clean) indexedDB.deleteDatabase("test")
 	})
 
 	// Helpers
-	
+
 	function addRecord(record) {
 		return db.save(record)
 	}
@@ -239,6 +239,13 @@ describe("IndexedDBStore", function() {
 				})
 			})
 		})
+
+		it('should retrieve all records with a GUID key', function(){
+			return db.create(new Blob(['Test', {type: 'text/plain'}]))
+				.then(function(record) {
+						return record.guid.should.match(GUID_REGEX)
+				})
+		})
 	})
 
 	describe("#save", function() {
@@ -252,7 +259,7 @@ describe("IndexedDBStore", function() {
 					db.all().then(function(records) {
 						records.length.should.equal(1)
 					})
-				,	
+				,
 					db.getAsString(id).should.eventually.equal("Test")
 				])
 			})
@@ -304,7 +311,7 @@ describe("IndexedDBStore", function() {
 		it("should return a record with a GUID", function() {
 			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
 				record.guid.should.exist
-				record.guid.should.match(GUID_REGEX)		
+				record.guid.should.match(GUID_REGEX)
 			})
 		})
 
@@ -329,7 +336,7 @@ describe("IndexedDBStore", function() {
 				return Q.all([
 					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data)
 					.should.eventually.equal("Test")
-					
+
 					,
 
 					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
