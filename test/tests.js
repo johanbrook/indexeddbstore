@@ -177,7 +177,9 @@ describe("IndexedDBStore", function() {
 			dbName: "test"
 		})
 
-		if(clean) return db.clear()
+		if(clean) {
+			return db.clear()
+		}
 	})
 
 	// After test suite
@@ -190,7 +192,10 @@ describe("IndexedDBStore", function() {
 					window.OIndexedDB ||
 					window.msIndexedDB;
 
-		if(clean) indexedDB.deleteDatabase("test")
+		if(clean) {
+			indexedDB.deleteDatabase("test")
+			indexedDB.deleteDatabase("test_several")
+		}
 	})
 
 	// Helpers
@@ -210,6 +215,59 @@ describe("IndexedDBStore", function() {
 	it("should have a default database name", function() {
 		var db2 = new IndexedDBStore()
 		db2.name.should.equal("DEFAULT")
+	})
+
+
+	describe("Multiple stores", function() {
+		var db2;
+
+		beforeEach(function() {
+			db2 = new IndexedDBStore({
+				dbName: 'test_several',
+				stores: ['store1', 'store2']
+			})
+		})
+
+		it("should support creating several stores in constructor", function() {
+			db2.stores.should.contain('store1', 'store2')
+		})
+
+		it("should work with the first specified store as default", function(){
+			return db2._getStore().then(function(store) {
+				store.name.should.equal('store1')
+			})
+		})
+
+		describe("#use", function() {
+			it("should provide a way of selecting which store to work on", function() {
+				return db2.use('store2')._getStore().then(function(store) {
+					store.name.should.equal('store2')
+				})
+			})
+
+			it("should remember the latest store used", function(){
+				return db2.use("store2").save("Test 1").then(function(guid) {
+					return db2.get(guid).then(function(record){
+						(record === undefined).should.be.false
+					})
+				})
+			})
+
+			it("should throw error if called with a non-existing store", function(){
+				// from https://github.com/chaijs/chai/issues/71
+				(function() {
+					db2.use("store3")
+				}).should.throw(Error)
+			})
+
+			it("should let you save resources in different stores", function() {
+				return db2.use("store2").save("Test 1").then(function(guid) {
+					return db2.use("store1").get(guid).then(function(record){
+						(record === undefined).should.be.true
+					})
+				})
+			})
+		})
 	})
 
 	describe("#all", function() {
