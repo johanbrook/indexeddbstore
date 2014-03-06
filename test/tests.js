@@ -279,27 +279,18 @@ describe("IndexedDBStore", function() {
 
 		it("should retrieve all records in store", function() {
 			return Q.all([
-				db.create(new Blob(["Test 1"], { type: "text/plain" })),
-				db.create(new Blob(["Test 2"], { type: "text/plain" }))
+				db.create({foo: "foo"}),
+				db.create({bar: "bar"})
 			])
-			.then(function(records) {
-				// Check length
-				records.length.should.equal(2)
-
+			.spread(function(foo, bar) {
 				// Check individual records
-				return Q.all([
-					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data),
-					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
-				])
-				.then(function(results) {
-					results[0].should.equal("Test 1")
-					results[1].should.equal("Test 2")
-				})
+				foo.foo.should.equal("foo")
+				bar.bar.should.equal("bar")
 			})
 		})
 
 		it('should retrieve all records with a GUID key', function(){
-			return db.create(new Blob(['Test', {type: 'text/plain'}]))
+			return db.create({foo: "bar"})
 				.then(function(record) {
 						return record.guid.should.match(GUID_REGEX)
 				})
@@ -308,24 +299,8 @@ describe("IndexedDBStore", function() {
 
 	describe("#save", function() {
 		it("should save a record and return an id", function() {
-			return addRecord("Test")
+			return db.save({foo: "bar"})
 			.then(function(id) {
-				id.should.be.a("String")
-				id.should.match(GUID_REGEX)
-
-				return Q.all([
-					db.all().then(function(records) {
-						records.length.should.equal(1)
-					})
-				,
-					db.getAsString(id).should.eventually.equal("Test")
-				])
-			})
-		})
-
-		it("should save a Blob", function() {
-			var blob = new Blob(["Test"], {type: "text/plain"})
-			return db.save(blob).then(function(id) {
 				id.should.be.a("String")
 				id.should.match(GUID_REGEX)
 			})
@@ -342,13 +317,13 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
-		it("should save several Blobs from an array", function() {
-			var blobs = [
-				new Blob(["Test"], {type: "text/plain"}),
-				new Blob(["Test 2"], {type: "text/plain"})
+		it("should save several records from an array", function() {
+			var records = [
+				{foo: "bar"},
+				{bar: "foo"}
 			]
 
-			return db.save(blobs).then(function(ids) {
+			return db.save(records).then(function(ids) {
 				ids.should.be.an("Array")
 				ids.length.should.equal(2)
 			})
@@ -357,64 +332,41 @@ describe("IndexedDBStore", function() {
 
 	describe("#get", function() {
 		it("should retrieve a given record", function() {
-			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
+			return db.save({foo: "bar"}).then(db.get.bind(db)).then(function(record) {
 				record.should.be.an("Object")
-				// "Test" has 4 bytes
-				record.data.byteLength.should.equal(4)
-				IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
-					.should.eventually.equal("Test")
+				record.foo.should.equal("bar")
 			})
 		})
 
 		it("should return a record with a GUID", function() {
-			return addRecord("Test").then(db.get.bind(db)).then(function(record) {
+			return db.save({foo: "bar"}).then(db.get.bind(db)).then(function(record) {
 				record.guid.should.exist
 				record.guid.should.match(GUID_REGEX)
 			})
 		})
 
-		it("should return a record with type, name and date keys", function() {
-			return db.save(new Blob(['Test', { type: "text/plain" }]))
-				.then(db.get.bind(db)).then(function(record) {
-					record.date.should.not.be.undefined
-					record.type.should.not.be.undefined
-					record.name.should.not.be.undefined
-				})
-		})
-
 		it("should retrieve given records from an array of ids", function() {
-			var blobs = [
-				new Blob(["Test"], {type: "text/plain"}),
-				new Blob(["Test 2"], {type: "text/plain"})
+			var records = [
+				{foo: "foo"},
+				{foo: "bar"}
 			]
 
-			return db.save(blobs).then(db.get.bind(db)).then(function(records) {
+			return db.save(records).then(db.get.bind(db)).then(function(records) {
 				records.length.should.equal(2)
-
-				return Q.all([
-					IndexedDBStore.Utils.arrayBufferToBinaryString(records[0].data)
-					.should.eventually.equal("Test")
-
-					,
-
-					IndexedDBStore.Utils.arrayBufferToBinaryString(records[1].data)
-						.should.eventually.equal("Test 2")
-					]
-				)
+				records[0].foo.should.equal("foo")
+				records[1].foo.should.equal("bar")
 			})
 		})
 	})
 
 	describe("#create", function() {
 		it("should create a record and return it", function() {
-			return db.create("Test").then(function(record) {
-				record.data.byteLength.should.equal(4)
-
-				return IndexedDBStore.Utils.arrayBufferToBinaryString(record.data)
-					.should.eventually.equal("Test")
+			return db.create({foo: "bar"}).then(function(record) {
+				record.foo.should.equal("bar")
 			})
 		})
 
+/*
 		it("should create a record from a given binary file", function() {
 			return Q.all([
 				getLocalFile("test-image.jpg")
@@ -430,38 +382,33 @@ describe("IndexedDBStore", function() {
 					})
 			])
 		})
+*/
 
 		describe("#guid (with given GUID)", function() {
 			it("should create a record with a given GUID", function() {
 				var guid = IndexedDBStore.Utils.guid()
 
-				return db.create(guid, "Test").then(function(record) {
-					record.data.byteLength.should.equal(4)
+				return db.create(guid, {foo: "bar"}).then(function(record) {
 					record.guid.should.equal(guid)
 				})
 			})
 		})
 
 		it("should create several Blobs from an array", function() {
-			var blobs = [
-				new Blob(["Test"], {type: "text/plain"}),
-				new Blob(["Test 2"], {type: "text/plain"})
+			var records = [
+				{foo: "bar"},
+				{foo: "foo"}
 			]
 
-			return db.create(blobs).then(function(ids) {
-				ids.should.be.an("Array")
-				ids.length.should.equal(2)
+			return db.create(records).then(function(recs) {
+				recs.should.be.an("Array")
+				recs.length.should.equal(2)
+				recs[0].foo.should.equal("bar")
+				recs[1].foo.should.equal("foo")
 			})
 		})
 	})
 
-	describe("#getAsString", function() {
-		it("should retrieve a given record as a binary string", function() {
-			return addRecord("Test")
-				.then(db.getAsString.bind(db))
-				.should.eventually.equal("Test")
-		})
-	})
 
 	describe("#size", function() {
 		it("should return zero when there are no records in store", function() {
