@@ -38,7 +38,7 @@ gulp.task('test', ['build'], function () {
 
     gutil.log("Test server listening on localhost:"+port+" ...");
     gutil.log("Press Ctrl+C to quit");
-    spawn("firefox", ["http://localhost:"+port+"/test/"+runner]);
+    spawn("open", ["http://localhost:"+port+"/test/"+runner]);
 });
 
 // Watch source files and use Browserify to handle deps.
