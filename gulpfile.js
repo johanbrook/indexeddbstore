@@ -6,6 +6,7 @@ var watch = 		require("gulp-watch");
 var clean = 		require('gulp-clean');
 var concat = 		require("gulp-concat");
 var spawn = 		require('child_process').spawn;
+var notify = 		require("gulp-notify");
 
 // Common build operation:
 // 	Take IndexedDBStore, add deps, concatenate into
@@ -13,6 +14,7 @@ var spawn = 		require('child_process').spawn;
 function build() {
 	gulp.src('./lib/IndexedDBStore.js')
 		.pipe(browserify())
+		.on('error', notify.onError("<%= error.message%>"))
 		.pipe(concat("bundle.js"))
 		.pipe(gulp.dest("./build"));
 }
