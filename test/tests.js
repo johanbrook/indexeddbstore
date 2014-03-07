@@ -1,7 +1,7 @@
 var should = chai.should()
 
 var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
-	GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
+		GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
 // Helpers
 
@@ -25,142 +25,6 @@ function getLocalFile(filename) {
 
 	return defer.promise
 }
-
-describe("Utils", function() {
-	var Utils = IndexedDBStore.Utils
-
-	describe("#toObjectURL", function() {
-		it("should convert a Blob to an ObjectURL", function() {
-			var data = new Blob(["Test"]),
-				url = Utils.toObjectURL(data)
-
-			url.should.exist
-			url.should.be.a("String")
-			url.should.match(URL_REGEX)
-		})
-
-		it("should convert arbitrary data to an ObjectURL", function() {
-			var data = "Test",
-				url = Utils.toObjectURL(data)
-
-			url.should.exist
-			url.should.be.a("String")
-			url.should.match(URL_REGEX)
-		})
-
-		it("should convert an ArrayBuffer to an ObjectURL", function() {
-			// First create a buffer from existing util function
-			return Utils.blobToArrayBuffer(new Blob(["Test"])).then(function(buffer) {
-				var url = Utils.toObjectURL(buffer)
-				url.should.exist
-				url.should.be.a("String")
-				url.should.match(URL_REGEX)
-			})
-		})
-	})
-
-	describe("#blobToArrayBuffer", function() {
-		it("should convert a Blob to an ArrayBuffer", function(){
-			var blob = new Blob(["Test"])
-			return Utils.blobToArrayBuffer(blob).then(function(buffer) {
-				(buffer instanceof ArrayBuffer).should.be.true
-				buffer.byteLength.should.equal(4)
-			})
-		})
-	})
-
-	describe("#arrayBufferToBlob", function() {
-		it("should convert an ArrayBuffer to Blob", function() {
-			var blob = new Blob(["Test"])
-			return Utils.blobToArrayBuffer(blob).then(function(buffer) {
-				var blob2 = Utils.arrayBufferToBlob(buffer)
-				blob2.size.should.equal(blob.size)
-			})
-		})
-	})
-
-	describe("#arrayBufferToBinaryString", function() {
-		it("should convert an ArrayBuffer to a binary String", function() {
-			var blob = new Blob(["Test"])
-			return Utils.blobToArrayBuffer(blob)
-				.then(Utils.arrayBufferToBinaryString)
-				.should.eventually.equal("Test")
-		})
-	})
-
-	describe("#blobToJSON", function() {
-		it("should return a JSON representation of a given Blob", function() {
-			var blob = new Blob(["Test"])
-
-			return Utils.blobToJSON(blob).then(function(json) {
-				json.should.be.an("Object");
-				(json.data instanceof ArrayBuffer).should.be.true
-			})
-		})
-
-		it("should return a type key for a given Blob", function() {
-			var blob = new Blob(["Test"], { type: "text/plain" })
-
-			return Utils.blobToJSON(blob).then(function(json) {
-				json.type.should.equal('text/plain')
-			})
-		})
-
-		it("should return a name key for a given Blob", function() {
-			var blob = new Blob(["Test"], { type: "text/plain" })
-
-			return Utils.blobToJSON(blob).then(function(json) {
-				json.name.should.equal('')
-			})
-		})
-
-		it("should return a date key for a given Blob", function() {
-			return getLocalFile("test-image.jpg")
-				.then(Utils.blobToJSON.bind(Utils))
-				.then(function(json) {
-					json.date.should.not.be.undefined
-					var parsedDate = new Date(json.date)
-					parsedDate.toString().should.not.equal("Invalid Date")
-				})
-		})
-	})
-
-	describe("#guid", function() {
-		var guid
-
-		beforeEach(function() {
-			guid = Utils.guid()
-		})
-
-		it("should generate a GUID", function() {
-			guid.should.exist
-			guid.should.be.a("String")
-		})
-
-		it("should be on the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", function() {
-			guid.should.match(GUID_REGEX)
-		})
-
-		it("should be pseudo-unique", function() {
-			var guid2 = Utils.guid()
-
-			guid.should.not.equal(guid2)
-		})
-	})
-
-	describe("#extend", function() {
-		it("should extend a given object", function() {
-			var obj = {test: "Test", name: "Johan"}
-			var extended = Utils.extend(obj, {test: "Test", name: "John"}, {foo: "bar"})
-
-			extended.test.should.equal("Test")
-			extended.name.should.equal("John")
-			extended.foo.should.equal("bar")
-		})
-	})
-})
-
-
 
 
 describe("IndexedDBStore", function() {
@@ -284,8 +148,8 @@ describe("IndexedDBStore", function() {
 			])
 			.spread(function(foo, bar) {
 				// Check individual records
-				foo.foo.should.equal("foo")
-				bar.bar.should.equal("bar")
+				foo.data.foo.should.equal("foo")
+				bar.data.bar.should.equal("bar")
 			})
 		})
 
@@ -333,8 +197,9 @@ describe("IndexedDBStore", function() {
 	describe("#get", function() {
 		it("should retrieve a given record", function() {
 			return db.save({foo: "bar"}).then(db.get.bind(db)).then(function(record) {
+				console.log(record)
 				record.should.be.an("Object")
-				record.foo.should.equal("bar")
+				record.data.foo.should.equal("bar")
 			})
 		})
 
@@ -353,8 +218,8 @@ describe("IndexedDBStore", function() {
 
 			return db.save(records).then(db.get.bind(db)).then(function(records) {
 				records.length.should.equal(2)
-				records[0].foo.should.equal("foo")
-				records[1].foo.should.equal("bar")
+				records[0].data.foo.should.equal("foo")
+				records[1].data.foo.should.equal("bar")
 			})
 		})
 	})
@@ -362,7 +227,7 @@ describe("IndexedDBStore", function() {
 	describe("#create", function() {
 		it("should create a record and return it", function() {
 			return db.create({foo: "bar"}).then(function(record) {
-				record.foo.should.equal("bar")
+				record.data.foo.should.equal("bar")
 			})
 		})
 
@@ -403,8 +268,8 @@ describe("IndexedDBStore", function() {
 			return db.create(records).then(function(recs) {
 				recs.should.be.an("Array")
 				recs.length.should.equal(2)
-				recs[0].foo.should.equal("bar")
-				recs[1].foo.should.equal("foo")
+				recs[0].data.foo.should.equal("bar")
+				recs[1].data.foo.should.equal("foo")
 			})
 		})
 	})
