@@ -284,7 +284,7 @@ describe("IndexedDBStore", function() {
 				})
 				.then(db.destroy.bind(db))
 				.then(function() {
-					return db.get(guid)			// try to fetch the record again
+					return db.get(guid)					// try to fetch the record again
 				})
 				.then(function(rec) {
 					var res = rec === undefined	// rec should not exist
@@ -301,11 +301,10 @@ describe("IndexedDBStore", function() {
 				})
 				.then(db.destroy.bind(db))
 				.then(function() {
-					return db.get(guids)
+					return db.get(guids)					// try to fetch the record again
 				})
-				.then(function(recs) {
-					var res = (recs === undefined)
-					res.should.be.true
+				.then(function(records) {			// values in array should be undefined
+					records.every(function(record){ return record === undefined }).should.be.true
 				})
 			})
 	})
