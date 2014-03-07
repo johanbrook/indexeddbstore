@@ -102,7 +102,7 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
-		describe("#use", function() {
+		describe("use", function() {
 			it("should provide a way of selecting which store to work on", function() {
 				return db2.use('store2')._getStore().then(function(store) {
 					store.name.should.equal('store2')
@@ -134,7 +134,7 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#all", function() {
+	describe("all", function() {
 		it("should return no elements on default", function() {
 			return db.all().then(function(records) {
 				records.length.should.equal(0)
@@ -161,7 +161,7 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#save", function() {
+	describe("save", function() {
 		it("should save a record and return an id", function() {
 			return db.save({foo: "bar"})
 			.then(function(id) {
@@ -170,7 +170,7 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
-		describe("#save (with given GUID)", function() {
+		describe("save (with given GUID)", function() {
 			it("should save a record with a given GUID", function() {
 				var guid = IndexedDBStore.Utils.guid()
 				return db.save(guid, "Test").then(function(id) {
@@ -194,10 +194,9 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#get", function() {
+	describe("get", function() {
 		it("should retrieve a given record", function() {
 			return db.save({foo: "bar"}).then(db.get.bind(db)).then(function(record) {
-				console.log(record)
 				record.should.be.an("Object")
 				record.data.foo.should.equal("bar")
 			})
@@ -224,7 +223,7 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#create", function() {
+	describe("create", function() {
 		it("should create a record and return it", function() {
 			return db.create({foo: "bar"}).then(function(record) {
 				record.data.foo.should.equal("bar")
@@ -249,7 +248,7 @@ describe("IndexedDBStore", function() {
 		})
 */
 
-		describe("#guid (with given GUID)", function() {
+		describe("guid (with given GUID)", function() {
 			it("should create a record with a given GUID", function() {
 				var guid = IndexedDBStore.Utils.guid()
 
@@ -274,8 +273,44 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
+	describe("destroy", function() {
 
-	describe("#size", function() {
+		it("should destroy a given record from its GUID", function() {
+			var guid;
+
+			return db.save({foo: "bar"})
+				.then(function(id) {
+					return guid = id
+				})
+				.then(db.destroy.bind(db))
+				.then(function() {
+					return db.get(guid)			// try to fetch the record again
+				})
+				.then(function(rec) {
+					var res = rec === undefined	// rec should not exist
+					res.should.be.true
+				})
+		})
+
+		it("should destroy an array of given record GUIDs and return them", function() {
+			var guids
+
+			return db.save([ {foo: "bar"}, {bar: "foo"}])
+				.then(function(ids) {
+					return guids = ids
+				})
+				.then(db.destroy.bind(db))
+				.then(function() {
+					return db.get(guids)
+				})
+				.then(function(recs) {
+					var res = (recs === undefined)
+					res.should.be.true
+				})
+			})
+	})
+
+	describe("size", function() {
 		it("should return zero when there are no records in store", function() {
 			return db.size().should.eventually.equal(0)
 		})
@@ -287,7 +322,7 @@ describe("IndexedDBStore", function() {
 		})
 	})
 
-	describe("#clear", function() {
+	describe("clear", function() {
 		it("should clear all rows", function() {
 			return db.clear()
 				.then(db.size.bind(db))
