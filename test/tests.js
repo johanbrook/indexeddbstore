@@ -222,6 +222,13 @@ describe("IndexedDBStore", function() {
 				records[1].data.foo.should.equal("bar")
 			})
 		})
+
+		it("should return 'undefined' for non-existing records", function() {
+			return db.get("fake-guid").then(function(record) {
+				var r = record === undefined
+				r.should.be.true
+			})
+		})
 	})
 
 	describe("#create", function() {
