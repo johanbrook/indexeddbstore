@@ -90,6 +90,8 @@ Tests reside in the `test/tests.js` file, and uses Mocha and Chai.js.
 
 	gulp test
 
+Visit [http://localhost:3000/test/runner.html](http://localhost:3000/test/runner.html) in your browser to view the Mocha test runner. The `gulp test` task will start a static Connect file server and re-build the main and test files when any of their sources are edited (e.g. the `build/bundle.js` and `test/bundle-test.js` files will be re-built on save).
+
 Thanks to Browserify, the tests are using `require()` to import the library files, including `utils.js`. The following task will build the test bundle used in the test runner HTML file:
 
 	gulp build-test
