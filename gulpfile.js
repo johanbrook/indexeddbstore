@@ -1,24 +1,37 @@
-var connect = 		require('connect');
-var gulp = 			require('gulp');
-var gutil = 		require('gulp-util');
-var browserify = 	require('gulp-browserify');
-var watch = 		require("gulp-watch");
-var clean = 		require('gulp-clean');
-var concat = 		require("gulp-concat");
-var spawn = 		require('child_process').spawn;
-var notify = 		require("gulp-notify");
+var connect = 		require('connect'),
+		gulp = 			require('gulp'),
+		gutil = 		require('gulp-util'),
+		browserify = 	require('gulp-browserify'),
+		watch = 		require("gulp-watch"),
+		clean = 		require('gulp-clean'),
+		concat = 		require("gulp-concat"),
+		spawn = 		require('child_process').spawn,
+		uglify = require('gulp-uglify'),
+		rename = require("gulp-rename"),
+		notify = 		require("gulp-notify");
 
 // Common build operation
 
 function build(input, output, dir) {
-	var src = (input === undefined) ? gulp.src('./lib/IndexedDBStore.js') :
+	var src = (input === undefined) ? gulp.src('lib/IndexedDBStore.js') :
 		(typeof input === "string") ? gulp.src(input) : input;
 
-	src
+	return src
 		.pipe(browserify())
 		.on('error', notify.onError("<%= error.message%>"))
 		.pipe(concat(output || "bundle.js"))
 		.pipe(gulp.dest(dir || "./build"));
+}
+
+function dist(minify) {
+	return gulp.src('lib/IndexedDBStore.js')
+		.pipe(browserify())
+		.pipe(concat("indexeddbstore.js"))
+		.pipe(minify ? uglify() : gutil.noop())
+		.pipe(minify ? rename({
+			suffix: ".min"
+		}) : gutil.noop())
+		.pipe(gulp.dest("./dist"));
 }
 
 
@@ -26,6 +39,10 @@ function build(input, output, dir) {
 gulp.task('default', ['build'], function(){});
 
 gulp.task('build', ['clean'], build);
+
+gulp.task('dist', function() {
+	dist() && dist(true)
+})
 
 gulp.task('test-build', function(){
 	build("test/tests.js", "bundle-test.js", "./test");

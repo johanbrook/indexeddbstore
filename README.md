@@ -82,6 +82,12 @@ You have to have a watch task running in order to let Browserify build a concate
 	npm install
 	gulp watch
 
+A task for building files ready for distribution is available:
+
+	gulp dist
+
+This will create files `dist/indexeddbstore.js` and `dist/indexeddbstore.min.js`.
+
 A concatenated `bundle.js` will be generated in the `build` directory.
 
 ## Tests

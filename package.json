@@ -26,10 +26,12 @@
     "name": "Johan Brook",
     "url": "http://johanbrook.com"
   },
-  "contributors": [{
-    "name": "Robert Edström",
-    "url": "https://github.com/legogris"
-    }],
+  "contributors": [
+    {
+      "name": "Robert Edström",
+      "url": "https://github.com/legogris"
+    }
+  ],
   "dependencies": {
     "q": "1.0.x"
   },
@@ -42,6 +44,8 @@
     "gulp-clean": "~0.2.4",
     "gulp-concat": "~2.1.7",
     "connect": "~2.13.0",
-    "gulp-notify": "~1.0.0-beta"
+    "gulp-notify": "~1.0.0-beta",
+    "gulp-uglify": "~0.3.0",
+    "gulp-rename": "~1.2.0"
   }
 }
