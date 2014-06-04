@@ -2530,12 +2530,13 @@ describe("IndexedDBStore", function() {
 			})
 		})
 
-/*
+
 		it("should create a record from a given binary file", function() {
 			return Q.all([
 				getLocalFile("test-image.jpg")
 					.then(db.create.bind(db))
 					.then(function(record) {
+						console.log("hej")
 						return record.type.should.equal("image/jpeg")
 					})
 				,
@@ -2546,7 +2547,6 @@ describe("IndexedDBStore", function() {
 					})
 			])
 		})
-*/
 
 		describe("guid (with given GUID)", function() {
 			it("should create a record with a given GUID", function() {
