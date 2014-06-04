@@ -26,7 +26,7 @@ gulp.task('default', ['build'], function(){});
 gulp.task('build', ['clean'], build);
 
 gulp.task('test-build', function(){
-	build("test/*.js", "bundle-test.js", "./test");
+	build("test/tests.js", "bundle-test.js", "./test");
 });
 
 gulp.task('test', ['test-build'], function () {
@@ -40,9 +40,8 @@ gulp.task('test', ['test-build'], function () {
     	connect.static(__dirname)
     ).listen(port);
 
-    gutil.log("Test server listening on localhost:"+port+" ...");
+    gutil.log("Test server listening on localhost:"+port+"test/"+runner);
     gutil.log("Press Ctrl+C to quit");
-    spawn("open", ["http://localhost:"+port+"/test/"+runner]);
 });
 
 // Watch source files and use Browserify to handle deps.

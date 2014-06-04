@@ -26,7 +26,7 @@
 
 	// Alias 'utils'
 
-	var Utils = IndexedDBStore.Utils = require("./utils");
+	var Utils = require("./utils");
 
 	// Helpers
 
@@ -2291,7 +2291,7 @@ return Q;
 var should = chai.should()
 
 var IndexedDBStore = require("../"),
-		Utils = require("../lib/utils")
+		Utils = require("../lib/utils.js")
 
 var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
 		GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
@@ -2465,7 +2465,7 @@ describe("IndexedDBStore", function() {
 
 		describe("save (with given GUID)", function() {
 			it("should save a record with a given GUID", function() {
-				var guid = IndexedDBStore.Utils.guid()
+				var guid = Utils.guid()
 				return db.save(guid, "Test").then(function(id) {
 					id.should.be.a("String")
 					id.should.match(GUID_REGEX)
@@ -2550,7 +2550,7 @@ describe("IndexedDBStore", function() {
 
 		describe("guid (with given GUID)", function() {
 			it("should create a record with a given GUID", function() {
-				var guid = IndexedDBStore.Utils.guid()
+				var guid = Utils.guid()
 
 				return db.create(guid, {foo: "bar"}).then(function(record) {
 					record.guid.should.equal(guid)
@@ -2713,4 +2713,4 @@ describe("Utils", function() {
 
 })
 
-},{"../":1,"../lib/utils":2}]},{},[5])
+},{"../":1,"../lib/utils.js":2}]},{},[5])
