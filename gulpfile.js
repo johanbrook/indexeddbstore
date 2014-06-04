@@ -11,27 +11,31 @@ var notify = 		require("gulp-notify");
 // Common build operation:
 // 	Take IndexedDBStore, add deps, concatenate into
 // 	`bundle.js` and put in build directory.
-function build() {
-	gulp.src('./lib/IndexedDBStore.js')
+function build(input, output, dir) {
+	gulp.src(input || './lib/IndexedDBStore.js')
 		.pipe(browserify())
 		.on('error', notify.onError("<%= error.message%>"))
-		.pipe(concat("bundle.js"))
-		.pipe(gulp.dest("./build"));
+		.pipe(concat(output || "bundle.js"))
+		.pipe(gulp.dest(dir || "./build"));
 }
 
 
 // Default task: build
-gulp.task('default', ['build'], function(){
+gulp.task('default', ['build'], function(){});
 
+gulp.task('build', ['clean'], build);
+
+gulp.task('test-build', function(){
+	build("test/*.js", "bundle-test.js", "./test");
 });
 
-gulp.task('test', ['build'], function () {
+gulp.task('test', ['test-build'], function () {
 	var runner = "runner.html",
-		port = 3000;
+			port = 3000;
 
-	// Use browser based testing and not a headless WebKit
-	// proxy, since PhantomJS doesn't support IndexedDB as
-	// of 1.9.
+		// Use browser based testing and not a headless WebKit
+		// proxy, since PhantomJS doesn't support IndexedDB as
+		// of 1.9.
     connect.createServer(
     	connect.static(__dirname)
     ).listen(port);
@@ -47,8 +51,6 @@ gulp.task('watch', function() {
 		return build();
 	}));
 });
-
-gulp.task('build', ['clean'], build);
 
 gulp.task('clean', function() {
 	gulp.src('./build', {read: false}).pipe(clean());

@@ -90,6 +90,12 @@ Tests reside in the `test/tests.js` file, and uses Mocha and Chai.js.
 
 	gulp test
 
+Thanks to Browserify, the tests are using `require()` to import the library files, including `utils.js`. The following task will build the test bundle used in the test runner HTML file:
+
+	gulp build-test
+
+This is automatically called in `gulp test`.
+
 Tests run in a browser window for now, since headless browsers like PhantomJS don't support the `IndexedDB` API yet (as of PhantomJS 1.9).
 
 ## License

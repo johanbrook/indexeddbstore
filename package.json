@@ -16,10 +16,6 @@
     "type": "git",
     "url": "git://github.com/johanbrook/indexeddbstore.git"
   },
-  "dependencies": {
-    "q": "1.0.x",
-    "rymd-utils": "git://github.com/rymdjs/rymd-utils.git#master"
-  },
   "scripts": {
     "test": "gulp test"
   },
@@ -34,6 +30,9 @@
     "name": "Robert Edström",
     "url": "https://github.com/legogris"
     }],
+  "dependencies": {
+    "q": "1.0.x"
+  },
   "devDependencies": {
     "browserify": "~3.0",
     "gulp-util": "~2.2.14",

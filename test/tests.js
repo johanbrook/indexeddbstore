@@ -1,5 +1,8 @@
 var should = chai.should()
 
+var IndexedDBStore = require("../"),
+		Utils = require("../lib/utils")
+
 var URL_REGEX = /^blob.+\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/,
 		GUID_REGEX = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 
@@ -335,4 +338,87 @@ describe("IndexedDBStore", function() {
 				.should.eventually.equal(0)
 		})
 	})
+})
+
+describe("Utils", function() {
+
+	describe("toPromise", function() {
+
+		var MockConnection = {
+			onsuccess: function(evt) {},
+			onerror: function(evt) {}
+		};
+
+		it("should throw an error if the object don't have onsuccess or onerror handlers", function() {
+			var mock = {}
+			return (function(){ return Utils.toPromise(mock) }).should.throw(Error)
+		})
+
+		it("should create a promise and fulfill a connection with an onsuccess handler", function() {
+			var mock = MockConnection,
+					promise = Utils.toPromise(mock)
+
+			mock.onsuccess({target: {result: "test"}})
+
+			return promise.should.be.fulfilled
+		})
+
+		it("should create a promise and reject a connection with an onerror handler", function() {
+			var mock = MockConnection,
+					promise = Utils.toPromise(mock)
+
+			mock.onerror({target: {error: new Error()}})
+
+			return promise.should.be.rejectedWith(Error)
+		})
+
+		it("should call a custom success handler if passed", function(done) {
+			var mock = MockConnection,
+					promise = Utils.toPromise(mock, {
+						success: function(evt, defer) {
+							evt.should.equal("Test")
+							defer.should.exist
+							done()
+						}
+					})
+
+			mock.onsuccess("Test")
+		})
+
+	})
+
+	describe("guid", function() {
+		var guid
+
+		beforeEach(function() {
+			guid = Utils.guid()
+		})
+
+		it("should generate a GUID", function() {
+			guid.should.exist
+			guid.should.be.a("String")
+		})
+
+		it("should be on the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", function() {
+			guid.should.match(GUID_REGEX)
+		})
+
+		it("should be pseudo-unique", function() {
+			var guid2 = Utils.guid()
+
+			guid.should.not.equal(guid2)
+		})
+	})
+
+	describe("extend", function() {
+		it("should extend a given object", function() {
+			var obj = {test: "Test", name: "Johan"}
+			var extended = Utils.extend(obj, {test: "Test", name: "John"}, {foo: "bar"})
+
+			extended.test.should.equal("Test")
+			extended.name.should.equal("John")
+			extended.foo.should.equal("bar")
+		})
+	})
+
 })
