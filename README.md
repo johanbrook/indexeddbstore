@@ -4,6 +4,8 @@ Promise based client-side wrapper for HTML5 IndexedDB in the browser, built with
 
 ## API
 
+IndexedDBStore is built according to CommonJS principles. Thus the module is able to be imported in the browser using Browserify and the common `require()` function. Else, `window.IndexedDBStore` is available.
+
 	var IndexedDBStore = require('indexeddbstore')
 
 	var Store = new IndexedDBStore({
