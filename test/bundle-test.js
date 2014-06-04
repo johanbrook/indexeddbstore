@@ -271,7 +271,7 @@
 
       connection.onerror = function(evt) {
         if(options && options.error) {
-          options.error(evt, defer);
+          options.error.call(this, evt, defer);
         }
         else {
           defer.reject(evt.target.error);
@@ -280,7 +280,7 @@
 
       connection.onsuccess = function(evt) {
         if(options && options.success) {
-          options.success(evt, defer);
+          options.success.call(this, evt, defer);
         }
         else {
           defer.resolve(evt.target.result);
@@ -2529,7 +2529,6 @@ describe("IndexedDBStore", function() {
 				record.data.foo.should.equal("bar")
 			})
 		})
-
 
 		it("should create a record from a given binary file", function() {
 			return Q.all([
