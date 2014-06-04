@@ -31,7 +31,7 @@ gulp.task('test', ['build'], function () {
 
 	// Use browser based testing and not a headless WebKit
 	// proxy, since PhantomJS doesn't support IndexedDB as
-	// of 1.9.x.
+	// of 1.9.
     connect.createServer(
     	connect.static(__dirname)
     ).listen(port);
@@ -48,9 +48,7 @@ gulp.task('watch', function() {
 	}));
 });
 
-gulp.task('build', ['clean'], function() {
-    build();
-});
+gulp.task('build', ['clean'], build);
 
 gulp.task('clean', function() {
 	gulp.src('./build', {read: false}).pipe(clean());

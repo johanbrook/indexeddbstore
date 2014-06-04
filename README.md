@@ -1,8 +1,10 @@
 # IndexedDB Data Storage Module
 
-A simple CRUD interface for the IndexedDB API using promises.
+Promise based client-side wrapper for HTML5 IndexedDB in the browser, built with [Browserify](http://browserify.org/).
 
 ## API
+
+	var IndexedDBStore = require('indexeddbstore')
 
 	var Store = new IndexedDBStore({
 		dbName: "DEFAULT",	// String
@@ -59,6 +61,8 @@ All methods returns a `Promise`, except for `Store#use`.
 
 ## Build tasks
 
+[Gulp](http://gulpjs.com/) is used for build tasks. Be sure to run `npm install` to install all dependencies.
+
 	# Default: builds bundle.js from lib/IndexedDBStore.js
 	gulp
 	gulp build
@@ -71,6 +75,8 @@ All methods returns a `Promise`, except for `Store#use`.
 
 ## Develop
 
+You have to have a watch task running in order to let Browserify build a concatenated file will all dependencies.
+
 	npm install
 	gulp watch
 
@@ -82,5 +88,8 @@ Tests reside in the `test/tests.js` file, and uses Mocha and Chai.js.
 
 	gulp test
 
-Tests run in a browser window for now, since headless browsers like
-PhantomJS don't support the `IndexedDB` API yet (as of PhantomJS 1.9.x).
+Tests run in a browser window for now, since headless browsers like PhantomJS don't support the `IndexedDB` API yet (as of PhantomJS 1.9).
+
+## License
+
+MIT.

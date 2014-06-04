@@ -2,10 +2,19 @@
   "name": "indexeddbstore",
   "version": "0.4.0",
   "license": "MIT",
+  "homepage": "https://github.com/johanbrook/indexeddbstore",
+  "description": "Client-side wrapper for IndexedDB built with promises.",
   "main": "lib/IndexedDBStore",
+  "keywords": [
+    "indexeddb",
+    "promises",
+    "html5",
+    "database",
+    "client"
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/datx02/data-storage.git"
+    "url": "git://github.com/johanbrook/indexeddbstore.git"
   },
   "dependencies": {
     "q": "1.0.x",
@@ -14,6 +23,17 @@
   "scripts": {
     "test": "gulp test"
   },
+  "directories": {
+    "test": "test"
+  },
+  "author": {
+    "name": "Johan Brook",
+    "url": "http://johanbrook.com"
+  },
+  "contributors": [{
+    "name": "Robert Edström",
+    "url": "https://github.com/legogris"
+    }],
   "devDependencies": {
     "browserify": "~3.0",
     "gulp-util": "~2.2.14",
