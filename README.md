@@ -2,6 +2,14 @@
 
 Promise based client-side wrapper for HTML5 IndexedDB in the browser, built with [Browserify](http://browserify.org/).
 
+## Install
+
+Via NPM:
+
+	npm install indexeddbstore
+
+Or just download [a release](https://github.com/johanbrook/indexeddbstore/releases) package and grab the contents in the `dist` directory and put in a `script` tag.
+
 ## API
 
 IndexedDBStore is built according to CommonJS principles. Thus the module is able to be imported in the browser using Browserify and the common `require()` function. Else, `window.IndexedDBStore` is available.
