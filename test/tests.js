@@ -75,6 +75,10 @@ describe("IndexedDBStore", function() {
 		db.should.not.be.undefined
 	})
 
+	it("should be available on the window object", function(){
+		window.IndexedDBStore.should.not.be.undefined
+	})
+
 	it("should have a database name", function() {
 		db.name.should.equal("test")
 	})
